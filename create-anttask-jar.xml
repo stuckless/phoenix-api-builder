@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project PhoenixAPIBuilder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="target/phoenix-api-generator-ant-task.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="phoenix.apibuilder.PhoenixAPIBuilder"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/sean/apps/eclipse-helios-64/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/sean/DevelopmentProjects/workspaces/sagetv/PhoenixAPIBuilder/lib/commons-io-1.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/sean/DevelopmentProjects/workspaces/sagetv/PhoenixAPIBuilder/lib/commons-lang-2.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/sean/DevelopmentProjects/workspaces/sagetv/PhoenixAPIBuilder/lib/log4j-1.2.15.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/sean/DevelopmentProjects/workspaces/sagetv/PhoenixAPIBuilder/lib/ant-1.6.5.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/sean/DevelopmentProjects/workspaces/sagetv/PhoenixAPIBuilder/lib-ext/javaparser.jar"/>
+        </jar>
+    </target>
+</project>

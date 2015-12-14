@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="PhoenixAPIBuilder" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<tstamp/>
+	
+	<property environment="env" />
+
+	<!-- Put Host specific properties here, ie sage path, bmt path, etc -->
+	<property file="${user.home}/AntCommon/build.properties" />
+	
+	<!-- Put Host specific properties here, ie sage path, bmt path, etc -->
+	<property file="build.properties" />
+	
+	<!-- sage.lib.dir should be defined in the build.properties -->
+	<!-- <property name="sage.lib.dir"/> -->
+	<!-- bmt.lib.dir should be defined in the build.properties -->
+	<!-- <property name="bmt.lib.dir"/> -->
+	<!-- bmt.core.lib should be defined in the build.properties -->
+	<!-- <property name="bmt.core.lib"/> -->
+	<!-- Configure path to GWT SDK  in the build .properties -->
+	<!-- <property name="gwt.sdk" location="" /> -->
+	
+	<!-- we are using the build.properties for the google code stuff -->
+	<property name="gc.upload.settings" value="build.properties"/>
+
+	<property name="src.dir" location="src" />
+	<property name="target" location="target" />
+	<property name="build.dir" location="${target}/build" />
+
+	<property name="name" value="phoenix-api-builder" />
+	<property name="version" value="1.0" />
+	<property name="jarname" value="${name}.jar" />
+
+	<property name="offline" value="true" />
+
+	
+	<path id="project.class.path">
+		<pathelement location="target/classes" />
+		<fileset dir="lib" includes="*.jar"/>
+		<fileset dir="lib-ext" includes="*.jar"/>
+	</path>
+
+	<!-- BEGIN IVY DEPENDENDCY MANAGER -->
+	<property name="ivy.install.version" value="2.2.0" />
+	<condition property="ivy.home" value="${env.IVY_HOME}">
+		<isset property="env.IVY_HOME" />
+	</condition>
+	<property name="ivy.home" value="${user.home}/.ant" />
+	<property name="ivy.jar.dir" value="${ivy.home}/lib" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+	<target name="download-ivy" unless="offline">
+		<mkdir dir="${ivy.jar.dir}" />
+		<!-- download Ivy from web site so that it can be used even without any special installation -->
+		<get src="http://www.apache.org/dist/ant/ivy/${ivy.install.version}/ivy.jar" dest="${ivy.jar.file}" usetimestamp="true" />
+	</target>
+
+	<target name="init-ivy" depends="download-ivy">
+		<!-- try to load ivy here from ivy home, in case the user has not already dropped
+              it into ant's lib dir (note that the latter copy will always take precedence).
+              We will not fail as long as local lib dir exists (it may be empty) and
+              ivy is in at least one of ant's lib dir or the local lib dir. -->
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+	</target>
+
+	<target name="resolve" description="retrieve dependencies with ivy">
+        <ivy:retrieve />
+    </target>
+	<!-- END IVY DEPENDENDCY MANAGER -->
+
+	<target name="init" depends="clean,init-ivy,resolve">
+		<mkdir dir="${build.dir}/classes/" />
+		
+		<copy includeemptydirs="false" todir="${build.dir}/classes/">
+			<fileset dir="${src.dir}" excludes="**/*.launch, **/*.java" />
+		</copy>
+	</target>
+	
+	<target name="clean">
+		<delete dir="target" />
+	</target>
+	
+	<target name="build" depends="init">
+		<javac debug="true" classpathref="project.class.path" source="1.5" target="1.5" srcdir="${src.dir}" destdir="${build.dir}/classes"/>
+	</target>
+	
+	<target depends="init,build" name="jar">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<jar destfile="${target}/${jarname}">
+			<fileset dir="${build.dir}/classes" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Specification-Title" value="${name}" />
+				<attribute name="Specification-Version" value="${version}  ${TODAY}" />
+				<attribute name="Specification-Vendor" value="${name}" />
+				<attribute name="Implementation-Title" value="${name}" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="${name}" />
+			</manifest>
+		</jar>
+		
+		<!-- update the MovieMetadata project, if it exists -->
+		<copy file="${target}/${jarname}" todir="../MovieMetadataUpdater/lib/" failonerror="false"/>
+	</target>
+	
+    <target name="create_anttask_jar" depends="jar">
+        <jar destfile="target/phoenix-api-generator-ant-task-v2.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="phoenix.apibuilder.PhoenixAPIBuilder"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+        	
+        	<zipfileset excludes="META-INF/*.SF" src="${target}/${jarname}"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/commons-io-1.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/commons-lang-2.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/junit-4.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/log4j-1.2.15.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/ant-1.6.5.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib-ext/javaparser.jar"/>
+        </jar>
+    </target>
+	
+	<target name="publish-googlecode" description="Upload build to Google Code">
+		<get dest="${user.home}/.ant/lib/ant-googlecode.jar" src="http://ant-googlecode.googlecode.com/files/ant-googlecode-0.0.2.jar" usetimestamp="true"/>
+		<!-- <available file="${gc.upload.settings}" property="gc.upload.enable" /> -->
+		<!-- <fail message="${gc.upload.settings} file does not exist!" unless="gc.upload.enable" /> -->
+		<!-- <property file="${gc.upload.settings}" /> -->
+		<fail message="gc.username must be defined in ${gc.upload.settings}" unless="gc.username" />
+		<fail message="gc.password must be defined in ${gc.upload.settings}" unless="gc.password" />
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" name="gcupload">
+			<classpath>
+			      <fileset dir="${user.home}/.ant/lib/">
+			        <include name="**/*.jar"/>
+			      </fileset>
+			</classpath>
+		</taskdef>
+		<gcupload targetfilename="phoenix-${version}.jar"  filename="${target}/phoenix.jar" username="${gc.username}" password="${gc.password}" projectname="sagephoenix" summary="Phoenix JAR ${version}" labels="QA-Snapshot,Type-Archive,OpSys-All"/>
+		<gcupload targetfilename="phoenix-javadoc-${version}.zip"  filename="${target}/phoenix-javadoc-${version}.zip" username="${gc.username}" password="${gc.password}" projectname="sagephoenix" summary="Phoenix API JavaDoc ${version}" labels="QA-Snapshot,Type-Archive,OpSys-All" />
+		<gcupload targetfilename="phoenix-api-${version}.zip"  filename="${target}/dist/packages/phoenix-api-${version}.zip" username="${gc.username}" password="${gc.password}" projectname="sagephoenix" summary="Phoenix API ${version} (Sage7 Plugin)" labels="QA-Snapshot,Type-Archive,OpSys-All" />
+		<gcupload targetfilename="phoenix-core-${version}.zip"  filename="${target}/dist/packages/phoenix-core-${version}.zip" username="${gc.username}" password="${gc.password}" projectname="sagephoenix" summary="Phoenix Core ${version} (Sage7 Plugin)" labels="QA-Snapshot,Type-Archive,OpSys-All" />
+	</target>
+</project>
