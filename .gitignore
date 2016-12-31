@@ -6,6 +6,11 @@ logs/
 NoCommit/
 libs/
 classes/
+build/
+.gradle/
+.idea/
+*.iml
+
 
 # Compiled source #
 ###################

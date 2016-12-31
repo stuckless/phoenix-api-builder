@@ -1,6 +1,6 @@
 package phoenix.apibuilder.ant;
 
-import japa.parser.ParseException;
+import com.github.javaparser.ParseException;
 
 import java.io.File;
 

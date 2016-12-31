@@ -1,36 +1,20 @@
 package phoenix.apibuilder;
 
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.ImportDeclaration;
-import japa.parser.ast.body.BodyDeclaration;
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.Parameter;
-import japa.parser.ast.body.TypeDeclaration;
-import japa.parser.ast.expr.AnnotationExpr;
-import japa.parser.ast.expr.BooleanLiteralExpr;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.IntegerLiteralExpr;
-import japa.parser.ast.expr.MemberValuePair;
-import japa.parser.ast.expr.NormalAnnotationExpr;
-import japa.parser.ast.expr.StringLiteralExpr;
-import japa.parser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.DocumentableNode;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import java.util.*;
 
 public class PhoenixAPIBuilder {
 	private static final String ANN_APICLASS = "API";
@@ -167,7 +151,14 @@ public class PhoenixAPIBuilder {
 
 	private void processJavaFileForAPI(File f) throws ParseException, IOException {
 		System.out.println("Processing file: " + f);
-		CompilationUnit cu = JavaParser.parse(f);
+		CompilationUnit cu = null;
+        try {
+            cu = JavaParser.parse(f);
+        } catch (ParseException | IOException e) {
+            System.out.println("Failed for " + f);
+            e.printStackTrace();
+            throw e;
+        }
 
 		List<TypeDeclaration> types = cu.getTypes();
 		for (TypeDeclaration type : types) {
@@ -329,8 +320,10 @@ public class PhoenixAPIBuilder {
 
 					
 					APIMethod item = new APIMethod();
-					if (member.getJavaDoc() != null) {
-						item.javadoc = member.getJavaDoc().getContent();
+					if (member instanceof DocumentableNode) {
+						if (((DocumentableNode) member).getJavaDoc() != null) {
+							item.javadoc = ((DocumentableNode)member).getJavaDoc().getContent();
+						}
 					}
 
 					if (apiClass.isProxy) {

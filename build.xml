@@ -30,17 +30,16 @@
 	<property name="version" value="1.0" />
 	<property name="jarname" value="${name}.jar" />
 
-	<property name="offline" value="true" />
+	<!--<property name="offline" value="true" />-->
 
 	
 	<path id="project.class.path">
 		<pathelement location="target/classes" />
 		<fileset dir="lib" includes="*.jar"/>
-		<fileset dir="lib-ext" includes="*.jar"/>
 	</path>
 
 	<!-- BEGIN IVY DEPENDENDCY MANAGER -->
-	<property name="ivy.install.version" value="2.2.0" />
+	<property name="ivy.install.version" value="2.4.0" />
 	<condition property="ivy.home" value="${env.IVY_HOME}">
 		<isset property="env.IVY_HOME" />
 	</condition>
@@ -51,7 +50,7 @@
 	<target name="download-ivy" unless="offline">
 		<mkdir dir="${ivy.jar.dir}" />
 		<!-- download Ivy from web site so that it can be used even without any special installation -->
-		<get src="http://www.apache.org/dist/ant/ivy/${ivy.install.version}/ivy.jar" dest="${ivy.jar.file}" usetimestamp="true" />
+		<get src="http://www.apache.org/dist/ant/ivy/2.4.0/maven2/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true" />
 	</target>
 
 	<target name="init-ivy" depends="download-ivy">
@@ -119,7 +118,7 @@
             <zipfileset excludes="META-INF/*.SF" src="lib/junit-4.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="lib/log4j-1.2.15.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="lib/ant-1.6.5.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="lib-ext/javaparser.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/javaparser-core-2.5.1.jar"/>
         </jar>
     </target>
 	

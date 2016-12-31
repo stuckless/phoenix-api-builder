@@ -1,22 +1,15 @@
-package test;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.BodyDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.Parameter;
-import japa.parser.ast.body.TypeDeclaration;
-import japa.parser.ast.body.VariableDeclaratorId;
-import japa.parser.ast.expr.AnnotationExpr;
-import japa.parser.ast.type.Type;
-import japa.parser.ast.visitor.GenericVisitor;
-import japa.parser.ast.visitor.VoidVisitor;
-import japa.parser.ast.visitor.VoidVisitorAdapter;
 
 public class TestParser {
 

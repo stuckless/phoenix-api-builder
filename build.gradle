@@ -1,0 +1,69 @@
+plugins {
+    id "com.jfrog.bintray" version "1.4"
+    id "com.github.johnrengelman.shadow" version "1.2.4"
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+jar.baseName 'phoenix-api-generator-lib'
+group 'phoenix'
+version '2.1'
+
+archivesBaseName = "phoenix-api-builder"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+configurations.all {
+    transitive = false
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	jcenter()
+	maven {
+		url  "http://dl.bintray.com/opensagetv/maven"
+	}
+	maven {
+		url  "http://dl.bintray.com/stuckless/sagetvphoenix"
+	}
+}
+
+dependencies {
+    compile "commons-io:commons-io:1.4"
+    compile  "commons-lang:commons-lang:2.4"
+    compile "log4j:log4j:1.2.15"
+    compile "junit:junit:4.7"
+    compile "ant:ant:1.6.5"
+    compile "com.github.javaparser:javaparser-core:2.5.1"
+}
+
+jar {
+    manifest {
+        attributes(
+                "Implementation-Title": "phoenix-api-builder",
+                "Implementation-Version": version
+        )
+    }
+}
+
+/**
+ * Note run ./gradle shadowJar to create the new uber jar
+ */
+shadowJar {
+    baseName = 'phoenix-api-generator'
+    classifier = null
+    manifest {
+        attributes (
+                "Main-Class": "phoenix.apibuilder.PhoenixAPIBuilder"
+        )
+    }
+}
+
+clean {
+    delete 'target'
+    delete 'bin'
+}
