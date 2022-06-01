@@ -1,20 +1,22 @@
 plugins {
-    id "com.jfrog.bintray" version "1.4"
-    id "com.github.johnrengelman.shadow" version "1.2.4"
+    //id "com.jfrog.bintray" version "1.4"
+    //id "com.github.johnrengelman.shadow" version "1.2.4"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id 'maven-publish'
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+//apply plugin: 'eclipse'
 apply plugin: 'idea'
 
 jar.baseName 'phoenix-api-generator-lib'
 group 'phoenix'
-version '2.1'
+version '2.2.1'
 
 archivesBaseName = "phoenix-api-builder"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 configurations.all {
     transitive = false
@@ -24,12 +26,12 @@ repositories {
 	mavenLocal()
 	mavenCentral()
 	jcenter()
-	maven {
-		url  "http://dl.bintray.com/opensagetv/maven"
-	}
-	maven {
-		url  "http://dl.bintray.com/stuckless/sagetvphoenix"
-	}
+	//maven {
+	//	url  "http://dl.bintray.com/opensagetv/maven"
+	//}
+	//maven {
+	//	url  "http://dl.bintray.com/stuckless/sagetvphoenix"
+	//}
 }
 
 dependencies {
@@ -41,11 +43,41 @@ dependencies {
     compile "com.github.javaparser:javaparser-core:2.5.1"
 }
 
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/jusjoken/phoenix-api-builder")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USER")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+        }
+    }
+    /*
+    publications {
+        gpr(MavenPublication) {
+            groupId = 'phoenix'
+            artifactId = 'phoenix-api-builder'
+            version = '2.2.1'
+
+            from(components.java)
+        }
+    }
+
+     */
+}
+
 jar {
     manifest {
         attributes(
                 "Implementation-Title": "phoenix-api-builder",
-                "Implementation-Version": version
+                "Implementation-Version": archiveVersion
         )
     }
 }
@@ -54,8 +86,8 @@ jar {
  * Note run ./gradle shadowJar to create the new uber jar
  */
 shadowJar {
-    baseName = 'phoenix-api-generator'
-    classifier = null
+    archiveBaseName = 'phoenix-api-generator'
+    archiveClassifier = null
     manifest {
         attributes (
                 "Main-Class": "phoenix.apibuilder.PhoenixAPIBuilder"
